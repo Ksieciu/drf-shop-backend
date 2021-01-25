@@ -17,7 +17,7 @@ class Product(models.Model):
     promotion_going = models.BooleanField(default=False)
     description = models.TextField(max_length=1024, null=True, blank=True)
     stock = models.IntegerField(min=0, default=0)
-    availability = models.Choices(max_length=4, choices=AVAILABILITY_STATUS)
+    availability = models.CharField(max_length=4, choices=AVAILABILITY_STATUS)
 
     def __str__(self):
         return f'{self.product_name}: {self.product_price}, Stock: {stock}'

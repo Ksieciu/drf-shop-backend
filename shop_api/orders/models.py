@@ -3,8 +3,8 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from products.models import Product
-from shipping_details.models import ShippingDetails
+from stock.models import Product
+from accounts.models import ShippingDetails
 
 User = settings.AUTH_USER_MODEL
 
@@ -32,13 +32,17 @@ PAYMENT_TYPE = [
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User)
-    shipping_details = models.ForeignKey(ShippingDetails)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    shipping_details = models.ForeignKey(
+        ShippingDetails,
+        blank=True, 
+        null=True,
+        on_delete=models.CASCADE)
     status = models.CharField(
         max_length=11, 
-        choices=AVAILABILORDER_STATUSITY_STATUS, 
+        choices=ORDER_STATUS, 
         default='PLACED')
-    payment_type = CharField(
+    payment_type = models.CharField(
         max_length=8, 
         choices=PAYMENT_TYPE, 
         default='CASH')
@@ -49,8 +53,10 @@ class Order(models.Model):
     cancellation_date = models.DateTimeField(blank=True, null=True)
 
 
+# it might be better to keep cart in cached db, 
+# but for this project I'll stick with this approach
 class Cart(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     products = models.ManyToManyField(
         Product, 
         through="CartProduct", 
@@ -61,6 +67,9 @@ class Cart(models.Model):
         for product in self.products.all():
             total += product.get_total_product_price()
         return total
+
+    def get_products_number(self):
+        return self.products.all().count()
 
 
 class CartProduct(models.Model):
@@ -75,8 +84,7 @@ class CartProduct(models.Model):
 
 @receiver(pre_save, sender=Order)
 def on_change(sender, instance: Order, **kwargs):
-    '''
-    Automatically change send, cancelled 
+    '''Automatically changes send, cancelled 
     and completed dates when status changes
     (change for status change date if date
     was not specified in save())

@@ -53,35 +53,6 @@ class Order(models.Model):
     cancellation_date = models.DateTimeField(blank=True, null=True)
 
 
-# it might be better to keep cart in cached db, 
-# but for this project I'll stick with this approach
-class Cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    products = models.ManyToManyField(
-        Product, 
-        through="CartProduct", 
-        related_name="cart_products")
-
-    def get_total_price(self):
-        total = 0
-        for product in self.products.all():
-            total += product.get_total_product_price()
-        return total
-
-    def get_products_number(self):
-        return self.products.all().count()
-
-
-class CartProduct(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
-
-    def get_total_product_price(self):
-        return self.quantity * self.product.price
-
-
-
 @receiver(pre_save, sender=Order)
 def on_change(sender, instance: Order, **kwargs):
     '''Automatically changes send, cancelled 

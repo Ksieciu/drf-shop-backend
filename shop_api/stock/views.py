@@ -46,7 +46,7 @@ class GetUpdateDeleteProduct(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CategoriesList(generics.ListCreateAPIView):
-    """Listing all categories"""
+    """List or create categories"""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 

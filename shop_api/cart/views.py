@@ -4,27 +4,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework import generics, filters, viewsets
+from rest_framework import status
 from .models import Cart, CartProduct
-from .serializers import (CartSerializer)
+from .serializers import (CartSerializer, CartAddProductSerializer, 
+    CartRemoveProductSerializer)
 
 
-# @api_view(['GET'])
-# def api_root(request, format=None):
-#     return Response({
-#         'cart': reverse('cart-list', request=request, format=format),
-#     })
-
-
-# class CartViewSet(viewsets.ModelViewSet):
-#     """This viewset automatically provides list, 
-#     create, retrieve, update and destroy actions.
-#     """
-#     queryset = Cart.objects.all()
-#     serializer_class = CartSerializer(data={"cat_id":pk})
-
-        
-
-class CartCreate(generics.CreateAPIView):
+class CartSave(generics.CreateAPIView):
     """ 
     Adds cart to db. 
     Important - it takes categories as list 
@@ -33,11 +19,20 @@ class CartCreate(generics.CreateAPIView):
     serializer_class = CartSerializer
 
 
-# class CartGetUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
-#     """Get, Update or Delete cart with slug given in url"""
-#     queryset = Cart.objects.all()
-#     serializer_class = CartSerializer
+class CartAddProduct(APIView):
+    
+    def post(self, request, format=None):
+        print(request.data)
+        serializer = CartAddProductSerializer(data=request.data, context={'request': request})
+        print(serializer)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
+
+class CartRemoveProduct(generics.DestroyAPIView):
+    serializer_class = CartRemoveProductSerializer
 
 
 class CartDetail(APIView):

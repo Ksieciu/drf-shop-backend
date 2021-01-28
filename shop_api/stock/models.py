@@ -11,7 +11,7 @@ class Product(models.Model):
         ('OUT', 'Out of stock'),
         ('SOON', 'Available soon'),
     ]
-    product_name = models.CharField(max_length=256)
+    product_name = models.CharField(max_length=256, unique=True)
     category = models.ManyToManyField('Category')
     price = models.DecimalField(
         max_digits=9,

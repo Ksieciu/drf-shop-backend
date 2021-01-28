@@ -12,9 +12,9 @@ User = settings.AUTH_USER_MODEL
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(
-        max_length=256, 
+        max_length=256,
         blank=True, 
-        default="Cart")
+        default="")
     saved = models.BooleanField(blank=True, default=False)
     slug = models.SlugField(blank=True, null=True)
     products = models.ManyToManyField(
